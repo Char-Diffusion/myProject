@@ -1,0 +1,8 @@
+loguru
+comet_ml
+pytorch_lightning
+ml_collections
+transformers
+fastNLP
+datasets==2.7.0
+fitlog
