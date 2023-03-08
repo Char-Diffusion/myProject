@@ -146,7 +146,7 @@ if __name__ == '__main__':
     optimizer = AdamW(model.parameters(), lr=args.lr)
     warmup_scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lambda n: n / 10000. + 1e-3 if n < 10000 else 100. / math.sqrt(n))
 
-    train_data, test_data = DiffusionLoader(tokenizer=tokenizer).my_load(task_name='lm1b', splits=['train', 'test'])
+    train_data, test_data = DiffusionLoader(tokenizer=tokenizer).my_load(task_name='lm1b', splits=['train[:3%]', 'test[3%:4%]'])
     train_data, dev_data = train_data.train_test_split(test_size=args.dev_size).values()
     print('!!!!!!!!!!!!!!!!!!!!!!!')
     logger = fastNLP.logger
