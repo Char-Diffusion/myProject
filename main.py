@@ -110,10 +110,12 @@ class DiffusionModel(pl.LightningModule):
 
     def setup(self, stage):
         print(111)
+        dataset_name = 'lm1b'
+        batch_size = 4
         ds = google_datasets.load(
             name=dataset_name,
             batch_size=batch_size,
-            preprocessors=task.preprocessors
+            # preprocessors=task.preprocessors
             )
         print(222)
         print(ds)

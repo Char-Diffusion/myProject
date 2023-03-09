@@ -35,7 +35,7 @@ DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 
 LM1B_VOCABULARY_PATH = os.path.join(DATA_DIR, 'lm1b-sentencepiece-8k.model')
 
-DatasetFn = Callable[Ellipsis, Mapping[str, types.Dataset]]
+DatasetFn = Callable[Ellipsis, Mapping[str, google_types.Dataset]]
 
 
 class DatasetRegistry:
