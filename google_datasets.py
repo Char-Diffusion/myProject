@@ -329,7 +329,7 @@ def load_lm1b(
 
     datasets[split] = ds
 
-  return utils.wrap_datasets(
+  return google_utils.wrap_datasets(
       train=datasets['train'], test=datasets['test'], vocab=vocab)
 
 
@@ -442,7 +442,7 @@ def load_text8(
 
   datasets = {split: ds.map(rename) for split, ds in datasets.items()}
 
-  return utils.wrap_datasets(
+  return google_utils.wrap_datasets(
       train=datasets['train'],
       valid=datasets['valid'],
       test=datasets['test'],
