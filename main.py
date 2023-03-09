@@ -108,8 +108,15 @@ class DiffusionModel(pl.LightningModule):
         self.diffusion = make_diffusion(self.config.model)
 
     def setup(self, stage):
-
-        self.train_set, self.valid_set = data_sets.get_train_data(self.config)
+        print(111)
+        ds = datasets.load(
+            name=dataset_name,
+            batch_size=batch_size,
+            preprocessors=task.preprocessors
+            )
+        print(222)
+        print(ds)
+        # self.train_set, self.valid_set = data_sets.get_train_data(self.config)
 
     def forward(self, x):
         return self.diffusion.p_sample_loop(self.model, x.shape)
