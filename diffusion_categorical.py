@@ -446,12 +446,10 @@ class CategoricalDiffusion(nn.Module):
         return torch.where(t_broadcast == 0, tzero_logits,
                            out)
 
-    def p_logits(self, model_fn, *, x, t, word):
+    def p_logits(self, model_fn, *, x, t):
         """Compute logits of p(x_{t-1} | x_t)."""
         assert t.shape == (x.shape[0],)
-        print(1)
-        model_output = model_fn(x, t, word)
-        print(2)
+        model_output = model_fn(x, t)
         # model_output = torch.full(model_output.shape, 0.039, dtype=model_output.dtype).to(model_output.device)
 
         if self.model_output == 'logits':
@@ -495,10 +493,10 @@ class CategoricalDiffusion(nn.Module):
 
     # === Sampling ===
     @torch.no_grad()
-    def p_sample(self, model_fn, *, x, t, word, noise):
+    def p_sample(self, model_fn, *, x, t, noise):
         """Sample one timestep from the model p(x_{t-1} | x_t)."""
         model_logits, pred_x_start_logits = self.p_logits(
-            model_fn=model_fn, x=x, t=t, word=word)
+            model_fn=model_fn, x=x, t=t)
         assert noise.shape == model_logits.shape, noise.shape
 
         # No noise when t == 0
@@ -553,7 +551,6 @@ class CategoricalDiffusion(nn.Module):
                 model_fn=model_fn,
                 x=x,
                 t=t,
-                word=word,
                 noise=torch.rand(size=noise_shape).to(x.device)
             )
 
@@ -565,7 +562,7 @@ class CategoricalDiffusion(nn.Module):
 
     # === Log likelihood / loss calculation ===
 
-    def vb_terms_bpd(self, model_fn, *, x_start, x_t, t, word):
+    def vb_terms_bpd(self, model_fn, *, x_start, x_t, t):
         """Calculate specified terms of the variational bound.
 
         Args:
@@ -582,7 +579,7 @@ class CategoricalDiffusion(nn.Module):
         """
         batch_size = t.shape[0]
         true_logits = self.q_posterior_logits(x_start, x_t, t, x_start_logits=False)
-        model_logits, pred_x_start_logits = self.p_logits(model_fn, x=x_t, t=t, word=word)
+        model_logits, pred_x_start_logits = self.p_logits(model_fn, x=x_t, t=t)
 
         kl = utils.categorical_kl_logits(logits1=true_logits, logits2=model_logits)
         assert kl.shape == x_start.shape
@@ -650,7 +647,7 @@ class CategoricalDiffusion(nn.Module):
 
         return ce
 
-    def training_losses(self, model_fn, x_start, t, word):
+    def training_losses(self, model_fn, x_start, t):
         """Training loss calculation."""
 
         # Add noise to data
@@ -665,18 +662,18 @@ class CategoricalDiffusion(nn.Module):
         if self.loss_type == 'kl':
             # Optimizes the variational bound L_vb.
             losses, _ = self.vb_terms_bpd(
-                model_fn=model_fn, x_start=x_start, x_t=x_t, t=t, word=word)
+                model_fn=model_fn, x_start=x_start, x_t=x_t, t=t)
 
         elif self.loss_type == 'cross_entropy_x_start':
             # Optimizes - sum_x_start x_start log pred_x_start.
-            _, pred_x_start_logits = self.p_logits(model_fn, x=x_t, t=t, word=word)
+            _, pred_x_start_logits = self.p_logits(model_fn, x=x_t, t=t)
             losses = self.cross_entropy_x_start(
                 x_start=x_start, pred_x_start_logits=pred_x_start_logits)
 
         elif self.loss_type == 'hybrid':
             # Optimizes L_vb - lambda * sum_x_start x_start log pred_x_start.
             vb_losses, pred_x_start_logits = self.vb_terms_bpd(
-                model_fn=model_fn, x_start=x_start, x_t=x_t, t=t, word=word)
+                model_fn=model_fn, x_start=x_start, x_t=x_t, t=t)
             ce_losses = self.cross_entropy_x_start(
                 x_start=x_start, pred_x_start_logits=pred_x_start_logits)
             losses = vb_losses + self.hybrid_coeff * ce_losses

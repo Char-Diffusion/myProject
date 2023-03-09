@@ -26,7 +26,7 @@ def get_config():
     return config_dict(
         seed=0,
         dataset=config_dict(
-            name='cifar10',
+            name='lm1b',
             path="datasets/",
             resolution=32,
             args=config_dict(

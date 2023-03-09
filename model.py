@@ -401,7 +401,7 @@ class UNet(nn.Module):
                 conv2d(in_channel, out_channel * self.num_pixel_vals, 3, padding=1, scale=1e-10),
             )
 
-    def forward(self, input, time, word):
+    def forward(self, input, time):
         time_embed = self.time(time)
 
         feats = []
