@@ -6,3 +6,6 @@ transformers
 fastNLP
 datasets==2.7.0
 fitlog
+flax==0.5.3
+seqio
+jax

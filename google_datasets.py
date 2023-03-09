@@ -28,8 +28,8 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 import tensorflow_text as tf_text
 
-from d3pm.text import types
-from d3pm.text import utils
+import google_types
+import google_utils
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 

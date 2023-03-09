@@ -34,7 +34,7 @@ import numpy as np
 import tensorflow as tf
 import tree
 
-from d3pm.text import types
+import google_types
 
 
 def build_dataset(ds,
@@ -49,7 +49,7 @@ def build_dataset(ds,
   if ds is None:
     return None
 
-  return types.Dataset(
+  return google_types.Dataset(
       dataset=ds,
       _vocab=vocab,
   )
@@ -80,7 +80,7 @@ def wrap_datasets(
   }
 
 
-get_dataset_info = types.get_dataset_info
+get_dataset_info = google_types.get_dataset_info
 
 
 def get_dataset_info_from_batch(batch,
@@ -89,7 +89,7 @@ def get_dataset_info_from_batch(batch,
   """Wraps a set of TFDS datasets with vocabularies."""
   shapes = jax.eval_shape(lambda: batch)
 
-  dataset_info = types.DatasetInfo(
+  dataset_info = google_types.DatasetInfo(
       features=batch.keys(), vocab=vocab, shapes=shapes)
 
   return dataset_info
