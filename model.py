@@ -402,8 +402,11 @@ class UNet(nn.Module):
             )
 
     def forward(self, input, time, word):
-        time_embed = self.time(time)
-
+        print('time')
+        print(time)
+        print(word)
+        time_embed = self.time(time.cpu())
+        print(111)
         feats = []
         #
         # out = spatial_fold(input, self.fold)

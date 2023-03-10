@@ -110,17 +110,20 @@ class DiffusionModel(pl.LightningModule):
 
     def setup(self, stage):
         print(111)
-        dataset_name = 'lm1b'
+        dataset_name = 'text8'
         batch_size = 4
-        ds = google_datasets.load(
-            name=dataset_name,
+        ds = google_datasets.load_text8(
+            # name=dataset_name,
             batch_size=batch_size,
             # preprocessors=task.preprocessors
             )
         print(222)
-        print(ds)
+        print(ds['train']._vocab.vocab_size)
+        print(333)
         # self.train_set, self.valid_set = data_sets.get_train_data(self.config)
         self.train_set, self.valid_set = ds['train'], ds['test']
+        print(self.train_set)
+        print(44444)
 
         # ds['train'] = cal_len(ds['train'])
 
@@ -168,6 +171,9 @@ class DiffusionModel(pl.LightningModule):
         #                           pin_memory=True)
         print(11)
         train_loader = iter(self.train_set)
+        print('aaa')
+        print(train_loader)
+        print('bbb')
         return train_loader
 
     def validation_step(self, batch, batch_nb):
@@ -244,7 +250,7 @@ if __name__ == '__main__':
             file.write(config.to_json_best_effort(sort_keys=True, indent=4) + '\n')
 
     d3pm = DiffusionModel(config, exp_dir=args.exp_dir)
-
+    print('z'*100)
     if args.train:
         checkpoint_callback = ModelCheckpoint(dirpath=args.exp_dir,
                                               verbose=False,
@@ -260,7 +266,7 @@ if __name__ == '__main__':
             project_name="D3PM",  # Optional
             experiment_name="d3pm-gaussian",  # Optional
         )
-
+        print(123)
         trainer = pl.Trainer(
             max_steps=config.train.num_train_steps,
             gradient_clip_val=1.,
@@ -274,5 +280,6 @@ if __name__ == '__main__':
             strategy="ddp",
             num_sanity_val_steps=0
         )
+        print(123)
 
         trainer.fit(d3pm, ckpt_path=args.resume)

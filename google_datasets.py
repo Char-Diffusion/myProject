@@ -378,16 +378,25 @@ def load_text8(
     if not tf.io.gfile.exists(os.path.join(data_dir, 'text8.zip')):
       url = 'http://mattmahoney.net/dc/text8.zip'
       print('Downloading text8 from URL {}.'.format(url))
-      urllib.request.urlretrieve(url, data_dir)
+      print(data_dir)
+      print('bbbb')
+      urllib.request.urlretrieve(url, os.path.join(data_dir,'text8.zip'))
+      print('aaaa')
 
     with tf.io.gfile.GFile(os.path.join(data_dir, 'text8.zip'), 'rb') as f:
       rawdata = zipfile.ZipFile(f).read('text8').decode('utf-8')
+    print('a')
 
+    # splits = {
+    #     'train': rawdata[:90000000],
+    #     'valid': rawdata[90000000:95000000],
+    #     'test': rawdata[95000000:],
+    # }
     splits = {
-        'train': rawdata[:90000000],
-        'valid': rawdata[90000000:95000000],
-        'test': rawdata[95000000:],
-    }
+      'train': rawdata[:9000],
+      'valid': rawdata[9000:9500],
+      'test': rawdata[9500:],
+      }
 
     for split, data in splits.items():
       with tf.io.gfile.GFile(

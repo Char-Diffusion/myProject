@@ -91,7 +91,9 @@ class CategoricalDiffusion(nn.Module):
         self.transition_bands = transition_bands
         self.transition_mat_type = transition_mat_type
         self.eps = 1.e-6
-
+        print('climba')
+        print(self.transition_bands)
+        print(self.transition_mat_type)
         if not ((betas > 0).all() and (betas <= 1).all()):
             raise ValueError('betas must be in (0, 1]')
 
@@ -147,9 +149,14 @@ class CategoricalDiffusion(nn.Module):
         # del self.q_onestep_mats
 
     def register(self, name, tensor):
+        print('---------------')
+        print(name)
+        print(tensor)
         self.register_buffer(name, tensor.type(torch.float32))
 
     def _get_full_transition_mat(self, t):
+        print('*****')
+        print(t)
         """Computes transition matrix for q(x_t|x_{t-1}).
 
         Contrary to the band diagonal version, this method constructs a transition
@@ -171,6 +178,8 @@ class CategoricalDiffusion(nn.Module):
         return torch.from_numpy(mat)
 
     def _get_transition_mat(self, t):
+        print('))))))))))))')
+        print(t)
         r"""Computes transition matrix for q(x_t|x_{t-1}).
 
         This method constructs a transition
@@ -284,6 +293,10 @@ class CategoricalDiffusion(nn.Module):
         return torch.from_numpy(mat)
 
     def _at(self, a, t, x):
+        print('#############')
+        print(a)
+        print(t)
+        print
         """Extract coefficients at specified timesteps t and conditioning data x.
 
         Args:
@@ -308,7 +321,7 @@ class CategoricalDiffusion(nn.Module):
         a_t = torch.index_select(a, dim=0, index=t.cuda())
         assert a_t.shape == (x.shape[0], self.num_pixel_vals, self.num_pixel_vals)
         # out = a_t[x.tolist()]
-        
+        print(a_t.shape)
         # a,t,x
         # torch.Size([1000, 256, 256]) torch.Size([128]) torch.Size([128, 3, 32, 32])
         # B,C,H,W
@@ -317,8 +330,9 @@ class CategoricalDiffusion(nn.Module):
         # x_onehot : torch.Size([128, 3072, 256])
         # out : torch.Size([128, 3072, 256])
         # out : torch.Size([128, 3, 32, 32, 256])
+        print(self.num_pixel_vals)
         x_onehot = F.one_hot(x.view(B, -1).to(torch.int64), num_classes=self.num_pixel_vals).to(torch.float32)
-        out = torch.matmul(x_onehot, a_t)
+        out = torch.matmul(x_onehot.cpu(), a_t.cpu())
         out = out.view(B, C, self.num_pixel_vals)
         return out
 
@@ -348,6 +362,9 @@ class CategoricalDiffusion(nn.Module):
         return out
 
     def q_probs(self, x_start, t):
+        print('$$$$$$$$$$')
+        print(x_start)
+        print(t)
         """Compute probabilities of q(x_t | x_start).
 
         Args:
@@ -381,7 +398,7 @@ class CategoricalDiffusion(nn.Module):
         # To avoid numerical issues clip the noise to a minimum value
         noise = torch.clamp(noise, min=torch.finfo(noise.dtype).tiny, max=1.)
         gumbel_noise = - torch.log(-torch.log(noise))
-        return torch.argmax(logits + gumbel_noise, dim=-1)
+        return torch.argmax(logits.cpu() + gumbel_noise.cpu(), dim=-1)
 
     def _get_logits_from_logistic_pars(self, loc, log_scale):
         """Computes logits for an underlying logistic distribution."""
@@ -684,6 +701,8 @@ class CategoricalDiffusion(nn.Module):
 
         elif self.loss_type == 'hybrid':
             # Optimizes L_vb - lambda * sum_x_start x_start log pred_x_start.
+            print(model_fn)
+            print(111111)
             vb_losses, pred_x_start_logits = self.vb_terms_bpd(
                 model_fn=model_fn, x_start=x_start, x_t=x_t, t=t, word=word)
             ce_losses = self.cross_entropy_x_start(
