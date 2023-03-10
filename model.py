@@ -405,11 +405,12 @@ class UNet(nn.Module):
         print('time')
         print(time)
         print(word)
-        time_embed = self.time(time.cpu())
+        time_embed = self.time(time.cuda()).cuda()
         print(111)
         feats = []
         #
         # out = spatial_fold(input, self.fold)
+        print(input.shape)
         batch_size, channels, height, width = input.shape
         input_onehot = F.one_hot(input.to(torch.int64), num_classes=self.num_pixel_vals)
         hid = input = utils.normalize_data(input)
