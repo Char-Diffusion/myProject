@@ -122,6 +122,8 @@ class DiffusionModel(pl.LightningModule):
         # self.train_set, self.valid_set = data_sets.get_train_data(self.config)
         self.train_set, self.valid_set = ds['train'], ds['test']
 
+        # ds['train'] = cal_len(ds['train'])
+
     def forward(self, x):
         return self.diffusion.p_sample_loop(self.model, x.shape)
 
@@ -135,6 +137,7 @@ class DiffusionModel(pl.LightningModule):
         return optimizer
 
     def training_step(self, batch, batch_idx):
+        print(batch)
         img, _ = batch
         print(image.shape)
         word = img[1:4] ## word를 어떻게 정의할 것인가?
@@ -157,12 +160,13 @@ class DiffusionModel(pl.LightningModule):
 
     def train_dataloader(self):
         print(self.train_set)
-        print(self.train_set.__getitem__)
-        train_loader = DataLoader(self.train_set,
-                                  batch_size=self.config.train.batch_size,
-                                  shuffle=True,
-                                  pin_memory=True)
+        # print(self.train_set.__getitem__)
+        # train_loader = DataLoader(self.train_set,
+        #                           batch_size=self.config.train.batch_size,
+        #                           shuffle=True,
+        #                           pin_memory=True)
         print(11)
+        train_loader = iter(self.train_set)
         return train_loader
 
     def validation_step(self, batch, batch_nb):
@@ -184,7 +188,7 @@ class DiffusionModel(pl.LightningModule):
 
         avg_total_bpd = torch.stack([x['total_bpd'] for x in outputs]).mean()
         self.logger.log_metrics({"total bpd": avg_total_bpd}, step=self.global_step)
-
+ 
         avg_prior_bpd = torch.stack([x['prior_bpd'] for x in outputs]).mean()
         self.logger.log_metrics({"prior bpd": avg_prior_bpd}, step=self.global_step)
 
@@ -202,12 +206,12 @@ class DiffusionModel(pl.LightningModule):
         return {'val_loss': avg_loss}
 
     def val_dataloader(self):
-        valid_loader = DataLoader(self.valid_set,
-                                  batch_size=self.config.train.batch_size,
-                                  shuffle=False,
-                                  pin_memory=True,
-                                  num_workers=12)
-
+        # valid_loader = DataLoader(self.valid_set,
+        #                           batch_size=self.config.train.batch_size,
+        #                           shuffle=False,
+        #                           pin_memory=True,
+        #                           num_workers=12)
+        valid_loader = iter(self.valid_set)
         return valid_loader
 
 
