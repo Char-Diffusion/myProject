@@ -290,7 +290,7 @@ def load_lm1b(
 
   if not datasets:
     datasets = {
-        split: tfds.load('lm1b', split=split) for split in ['train[:1%]', 'test[1%:2%]']
+        split: tfds.load('lm1b', split=split) for split in ['train[:10]', 'test[10:20]']
     }
 
   vocab_path = alt_vocab_path if alt_vocab_path else LM1B_VOCABULARY_PATH

@@ -156,12 +156,13 @@ class DiffusionModel(pl.LightningModule):
         return {'loss': loss}
 
     def train_dataloader(self):
-
+        print(self.train_set)
+        print(self.train_set.__getitem__)
         train_loader = DataLoader(self.train_set,
                                   batch_size=self.config.train.batch_size,
                                   shuffle=True,
                                   pin_memory=True)
-
+        print(11)
         return train_loader
 
     def validation_step(self, batch, batch_nb):
