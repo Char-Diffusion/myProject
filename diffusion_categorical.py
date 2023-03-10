@@ -308,6 +308,14 @@ class CategoricalDiffusion(nn.Module):
         a_t = torch.index_select(a, dim=0, index=t.cuda())
         assert a_t.shape == (x.shape[0], self.num_pixel_vals, self.num_pixel_vals)
         # out = a_t[x.tolist()]
+
+        
+        # B,C,H,W
+        # 128 3 32 32
+        # a_t : torch.Size([128, 256, 256])
+        # x_onehot : torch.Size([128, 3072, 256])
+        # out : torch.Size([128, 3072, 256])
+        # out : torch.Size([128, 3, 32, 32, 256])
         x_onehot = F.one_hot(x.view(B, -1).to(torch.int64), num_classes=self.num_pixel_vals).to(torch.float32)
         out = torch.matmul(x_onehot, a_t)
         out = out.view(B, C, self.num_pixel_vals)
