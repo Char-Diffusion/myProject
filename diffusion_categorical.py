@@ -304,13 +304,13 @@ class CategoricalDiffusion(nn.Module):
         # a.shape = (num_timesteps, num_pixel_vals, num_pixel_vals)
         # out.shape = (bs, channels, height, width, num_pixel_vals)
         # out[i, j, k, l, m] = a[t[i], x[i, j, k, l], m]
-        B, C, H, W = x.shape
+        B, C = x.shape
         a_t = torch.index_select(a, dim=0, index=t)
         assert a_t.shape == (x.shape[0], self.num_pixel_vals, self.num_pixel_vals)
         # out = a_t[x.tolist()]
         x_onehot = F.one_hot(x.view(B, -1).to(torch.int64), num_classes=self.num_pixel_vals).to(torch.float32)
         out = torch.matmul(x_onehot, a_t)
-        out = out.view(B, C, H, W, self.num_pixel_vals)
+        out = out.view(B, C, self.num_pixel_vals)
         return out
 
     def _at_onehot(self, a, t, x):

@@ -138,8 +138,9 @@ class DiffusionModel(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         print(batch)
-        img, _ = batch
-        print(image.shape)
+        img = batch
+        # print(img.shape)
+        img = torch.Tensor(img['targets'])
         word = img[1:4] ## word를 어떻게 정의할 것인가?
         # t = np.random.randint(size=(img.shape[0],), low=0, high=self.num_timesteps, dtype=np.int32)
         t = (torch.randint(low=0, high=(self.num_timesteps), size=(img.shape[0],))).to(img.device)
