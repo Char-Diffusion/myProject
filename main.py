@@ -120,7 +120,7 @@ class DiffusionModel(pl.LightningModule):
         print(222)
         print(ds)
         # self.train_set, self.valid_set = data_sets.get_train_data(self.config)
-        self.train_set, self.valid_set = ds['train'], ds['valid']
+        self.train_set, self.valid_set = ds['train'], ds['test']
 
     def forward(self, x):
         return self.diffusion.p_sample_loop(self.model, x.shape)
