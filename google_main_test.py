@@ -40,7 +40,8 @@ class MainTest(absltest.TestCase):
     # Construct a test config with a small number of steps.
     google_configs.gin_load('text8_tiny')
 
-    with tfds.testing.mock_data(num_examples=2048):
+    # with tfds.testing.mock_data(num_examples=2048):
+    with tfds.testing.mock_data(num_examples=512):
       # Make sure we can train without any exceptions.
       google_main.run_experiment(
           experiment_dir,

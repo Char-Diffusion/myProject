@@ -845,9 +845,9 @@ def load_text8(
       rawdata = zipfile.ZipFile(f).read('text8').decode('utf-8')
 
     splits = {
-        'train': rawdata[:90000000],
-        'valid': rawdata[90000000:95000000],
-        'test': rawdata[95000000:],
+        'train': rawdata[:900],
+        'valid': rawdata[900:950],
+        'test': rawdata[950:],
     }
 
     for split, data in splits.items():

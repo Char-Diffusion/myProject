@@ -184,13 +184,15 @@ def diffusion():
       'run_experiment.model_cls':
           '@CategoricalDiffusionModel',
       'run_experiment.max_train_steps':
-          10000,
+          # 10000,
+          10,
       'CategoricalDiffusionModel.use_timestep_embeddings':
           True,
       'CategoricalDiffusionModel.use_film_layers':
           False,
       'run_experiment.batch_size_per_device':
-          8,
+          2,
+          # 8,
       'discrete_diffusion_loss_fn.predict_x0':
           True,
       'discrete_diffusion_predict_fn.predict_x0':
