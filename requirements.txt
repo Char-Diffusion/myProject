@@ -9,3 +9,12 @@ fitlog
 flax==0.5.3
 seqio
 jax
+virtualenv
+git+https://github.com/google/flaxformer
+absl-py
+clu
+tensorflow
+tensorflow-datasets
+gin-config
+chex
+aqtp

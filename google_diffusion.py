@@ -2313,7 +2313,7 @@ def create_discrete_diffusion(
         f"Diffusion diffusion schedule of kind {kind} is not supported.")
 
   if not diffusion.has_state:
-    return types.State(static_state={"diffusion": diffusion})
+    return google_types.State(static_state={"diffusion": diffusion})
 
   if pretrained_weights_path is not None:
     logging.info("using pretrained weights.")
@@ -2326,7 +2326,7 @@ def create_discrete_diffusion(
     state = diffusion.update_state(embeddings)
     state = flax.jax_utils.replicate(state)
 
-    return types.State(
+    return google_types.State(
         static_state={"diffusion": diffusion},
         dynamic_state={"diffusion_state": state},
     )
@@ -2341,7 +2341,7 @@ def create_discrete_diffusion(
     new_diffusion_state = diffusion.update_state(embeddings)
     return {"diffusion_state": new_diffusion_state}
 
-  return types.State(
+  return google_types.State(
       static_state={"diffusion": diffusion},
       dynamic_state={"diffusion_state": None},
       dynamic_update_fn=dynamic_update_fn,
@@ -3202,16 +3202,16 @@ def discrete_diffusion_predict_fn(
   return predictions
 
 
-LM_DIFFUSION_TASK = tasks.register(
+LM_DIFFUSION_TASK = google_tasks.register(
     name="diffusion",
-    task=types.Task(
+    task=google_types.Task(
         loss_fn=discrete_diffusion_loss_fn,
         predict_fn=discrete_diffusion_predict_fn,
         input_features=["targets"],
         init_features=["targets"],
         predict_features=["targets"],
         state_init_fn=create_discrete_diffusion,
-        metric_fns=[metrics.take_n],
-        model_init_fn=models.transformer_init,
+        metric_fns=[google_metrics.take_n],
+        model_init_fn=google_models.transformer_init,
         vmap_batch=True,
     ))
