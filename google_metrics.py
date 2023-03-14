@@ -42,7 +42,7 @@ def sequence_accuracy(predictions,
 
   acc = (reference_text == text).all(-1).mean()
 
-  return [types.Metric(
+  return [google_types.Metric(
       name='sequence_accuracy',
       type='scalar',
       value=acc,
@@ -58,7 +58,7 @@ def take_n(predictions, batch, *, dataset_info, n=1):
   for key, value in predictions.items():
     if key.startswith('img/'):
       value = value.reshape((-1,) + value.shape[-3:])
-      metrics.append(types.Metric(
+      metrics.append(google_types.Metric(
           name=key,
           type='image',
           value=value[:n],
@@ -66,7 +66,7 @@ def take_n(predictions, batch, *, dataset_info, n=1):
     elif key.startswith('text/'):
       value = value.reshape((-1,) + value.shape[-1:])
       text = dataset_info.vocab.decode_tf(value)
-      metrics.append(types.Metric(
+      metrics.append(google_types.Metric(
           name=key,
           type='text',
           value=text[:n],
