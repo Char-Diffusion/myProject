@@ -249,7 +249,7 @@ class DiscreteDiffusionMatrixBase(DiscreteDiffusionBase):
 
     if make_one_hot:
       chex.assert_type(q0, jnp.int32)
-      q0 = losses.onehot(labels=q0, num_classes=self.dim)
+      q0 = google_losses.onehot(labels=q0, num_classes=self.dim)
 
     chex.assert_type(q0, jnp.float32)
 
@@ -333,7 +333,7 @@ class DiscreteDiffusionMatrixBase(DiscreteDiffusionBase):
 
     if make_one_hot:
       chex.assert_type(x_0, jnp.int32)
-      x_0 = losses.onehot(x_0, dim).reshape(x_0.shape + (dim,))
+      x_0 = google_losses.onehot(x_0, dim).reshape(x_0.shape + (dim,))
 
     chex.assert_type(x_0, jnp.float32)
     chex.assert_type(t, jnp.int32)
@@ -379,7 +379,7 @@ class DiscreteDiffusionMatrixBase(DiscreteDiffusionBase):
         transition_probs = transition_matrix[samples]
       else:
         if step_size > 1:
-          transition_probs = losses.onehot(samples, self.dim)
+          transition_probs = google_losses.onehot(samples, self.dim)
           for i in range(step_size):
             transition_probs = self.qt_reverse(
                 qt_plus_1=transition_probs,
@@ -534,7 +534,7 @@ class BetaDiagonalDiffusion(DiscreteDiffusionMatrixBase):
 
     if make_one_hot:
       chex.assert_type(qt_plus_1, jnp.int32)
-      qt_plus_1 = losses.onehot(labels=qt_plus_1, num_classes=self.dim)
+      qt_plus_1 = google_losses.onehot(labels=qt_plus_1, num_classes=self.dim)
 
     chex.assert_type(qt_plus_1, jnp.float32)
 
@@ -583,7 +583,7 @@ class BetaDiagonalDiffusion(DiscreteDiffusionMatrixBase):
 
     if make_one_hot:
       chex.assert_type(q0, jnp.int32)
-      q0 = losses.onehot(labels=q0, num_classes=self.dim)
+      q0 = google_losses.onehot(labels=q0, num_classes=self.dim)
 
     chex.assert_type(q0, jnp.float32)
     chex.assert_rank(q0, 2)
@@ -771,7 +771,7 @@ class MaskDiffusion(DiscreteDiffusionMatrixBase):
   def stationary_probs(self, shape):
     """Stationary distribution is one-hot at mask token."""
     sample = jnp.full(shape, self.dim - 1)
-    probs = losses.onehot(sample, self.dim)
+    probs = google_losses.onehot(sample, self.dim)
     return probs
 
   def sample_stationary(self, key, shape):
@@ -821,7 +821,7 @@ class MaskDiffusion(DiscreteDiffusionMatrixBase):
 
     if make_one_hot:
       chex.assert_type(qt_plus_1, jnp.int32)
-      qt_plus_1 = losses.onehot(labels=qt_plus_1, num_classes=self.dim)
+      qt_plus_1 = google_losses.onehot(labels=qt_plus_1, num_classes=self.dim)
 
     chex.assert_type(qt_plus_1, jnp.float32)
 
@@ -829,7 +829,7 @@ class MaskDiffusion(DiscreteDiffusionMatrixBase):
 
     def reverse_fn(qt_plus_1):
       non_mask_prob = (1 - beta) * qt_plus_1[:-1] + beta * qt_plus_1[-1:]
-      prob_at_time_t = losses.onehot(jnp.array(self.dim - 1),
+      prob_at_time_t = google_losses.onehot(jnp.array(self.dim - 1),
                                      self.dim) * qt_plus_1[-1:]
       prob_at_time_t = prob_at_time_t.at[:-1].set(non_mask_prob)
       return prob_at_time_t
@@ -872,7 +872,7 @@ class MaskDiffusion(DiscreteDiffusionMatrixBase):
 
     if make_one_hot:
       chex.assert_type(q0, jnp.int32)
-      q0 = losses.onehot(labels=q0, num_classes=self.dim)
+      q0 = google_losses.onehot(labels=q0, num_classes=self.dim)
 
     chex.assert_type(q0, jnp.float32)
     chex.assert_rank(q0, 2)
@@ -884,7 +884,7 @@ class MaskDiffusion(DiscreteDiffusionMatrixBase):
       non_mask_prob = p * q0[:-1]
       mask_prob = (1 - non_mask_prob.sum())
 
-      prob_at_time_t = mask_prob * losses.onehot(
+      prob_at_time_t = mask_prob * google_losses.onehot(
           jnp.array(self.dim - 1), self.dim)
       prob_at_time_t = prob_at_time_t.at[:-1].set(non_mask_prob)
       return prob_at_time_t
@@ -1094,7 +1094,7 @@ class MaskGaussianPrecomputedDiffusion(DiscreteDiffusionMatrixBase):
   def stationary_probs(self, shape):
     """Stationary distribution is one-hot at mask token."""
     sample = jnp.full(shape, self.dim - 1)
-    probs = losses.onehot(sample, self.dim)
+    probs = google_losses.onehot(sample, self.dim)
     return probs
 
   def sample_stationary(self, key, shape):
@@ -1335,7 +1335,7 @@ class ClosedFormMatrixExponentialDiffusion(DiscreteDiffusionMatrixBase):
     self.mask_token = mask_token
 
     query_exponents, query_info_removals = (
-        model_utils.compute_information_removal_samples_closed_form(
+        google_model_utils.compute_information_removal_samples_closed_form(
             lambda t: self.builder_fn(t, self.dim),
             initial_distribution=self.schedule.initial_distribution,
             min_exponent=self.schedule.min_exponent,
@@ -1346,7 +1346,7 @@ class ClosedFormMatrixExponentialDiffusion(DiscreteDiffusionMatrixBase):
     else:
       num_interpolated_steps = self.num_steps
     _, middle_exponents = (
-        model_utils.build_mutual_information_schedule(num_interpolated_steps,
+        google_model_utils.build_mutual_information_schedule(num_interpolated_steps,
                                                       query_exponents,
                                                       query_info_removals))
     exponents = jnp.concatenate([jnp.zeros([1]), middle_exponents])
@@ -1422,7 +1422,7 @@ class AutoRegressiveDiffusion(DiscreteDiffusionBase):
   def stationary_probs(self, shape):
     """Stationary distribution is one-hot at mask token."""
     sample = jnp.full(shape, self.dim - 1)
-    probs = losses.onehot(sample, self.dim)
+    probs = google_losses.onehot(sample, self.dim)
     return probs
 
   def sample_stationary(self, key, shape):
@@ -1437,7 +1437,7 @@ class AutoRegressiveDiffusion(DiscreteDiffusionBase):
     """Get q(x_t | x_0), the t-step posterior."""
     if make_one_hot:
       chex.assert_type(q0, jnp.int32)
-      q0 = losses.onehot(labels=q0, num_classes=self.dim)
+      q0 = google_losses.onehot(labels=q0, num_classes=self.dim)
 
     chex.assert_type(q0, jnp.float32)
     assert q0.ndim >= 2, "AutoRegresssiveDiffusion requires a sequence."
@@ -1478,7 +1478,7 @@ class AutoRegressiveDiffusion(DiscreteDiffusionBase):
 
     if make_one_hot:
       chex.assert_type(x_0, jnp.int32)
-      x_0 = losses.onehot(x_0, dim).reshape(x_0.shape + (dim,))
+      x_0 = google_losses.onehot(x_0, dim).reshape(x_0.shape + (dim,))
 
     chex.assert_type(x_0, jnp.float32)
     chex.assert_type(t, jnp.int32)
@@ -1488,7 +1488,7 @@ class AutoRegressiveDiffusion(DiscreteDiffusionBase):
       samples = jrandom.categorical(key, logits, axis=-1)
 
     posterior = self.get_qt_given_q0(q0=x_0, t=t)
-    sample_probs = losses.onehot(samples, dim)
+    sample_probs = google_losses.onehot(samples, dim)
 
     # what am I doing here? take prefix from sample, suffix is all mask, and
     # position t is taken from x_0. [0, 1, 2] -> [0, 1, MASK] -> [0, MASK, MASK]
@@ -1568,7 +1568,7 @@ class NearestNeighborDiffusion(DiscreteDiffusionMatrixBase):
     return jrandom.randint(key, shape, 0, self.dim)
 
   def update_state(self, state):
-    neighbors = model_utils.get_nearest_neighbors(
+    neighbors = google_model_utils.get_nearest_neighbors(
         state,
         k=self.knn,
         include_self=False,
@@ -1582,7 +1582,7 @@ class NearestNeighborDiffusion(DiscreteDiffusionMatrixBase):
       transition_rate = matrix - jnp.diagflat(jnp.sum(matrix, axis=1))
       beta = self.schedule(0)
       if self.expm_type == "naive":
-        matrix = utils.naive_expm(
+        matrix = google_utils.naive_expm(
             beta * transition_rate, iterations=self.num_expm_iterations)
       elif self.expm_type == "scipy":
         matrix = scipy.linalg.expm(
@@ -1685,10 +1685,10 @@ class CachedDiffusion(DiscreteDiffusionMatrixBase):
     """Returns the base matrix to be raised to powers."""
     transition_rate = self.get_rate_matrix(*args, **kwargs)
     if self.expm_type == "naive":
-      matrix = utils.naive_expm(
+      matrix = google_utils.naive_expm(
           beta_min * transition_rate, iterations=self.num_expm_iterations)
     elif self.expm_type == "less_naive":
-      matrix = utils.transition_rate_expm(beta_min * transition_rate)
+      matrix = google_utils.transition_rate_expm(beta_min * transition_rate)
     elif self.expm_type == "scipy":
       matrix = scipy.linalg.expm(
           np.array(beta_min * transition_rate, dtype=np.float64))
@@ -1721,7 +1721,7 @@ class CachedDiffusion(DiscreteDiffusionMatrixBase):
              jnp.array([0.])])
 
       query_exponents, query_info_removals = (
-          model_utils.compute_information_removal_samples_by_squaring(
+          google_model_utils.compute_information_removal_samples_by_squaring(
               transition_rate,
               initial_distribution=self.schedule.initial_distribution,
               min_exponent=self.schedule.min_exponent,
@@ -1732,7 +1732,7 @@ class CachedDiffusion(DiscreteDiffusionMatrixBase):
       else:
         num_interpolated_steps = self.num_steps
       _, middle_exponents = (
-          model_utils.build_mutual_information_schedule(num_interpolated_steps,
+          google_model_utils.build_mutual_information_schedule(num_interpolated_steps,
                                                         query_exponents,
                                                         query_info_removals))
       min_exponent = middle_exponents[0]
@@ -1751,9 +1751,9 @@ class CachedDiffusion(DiscreteDiffusionMatrixBase):
 
     matrix = self.get_base_matrix(min_exponent, *args, **kwargs)
     if self.lazy:
-      matrix_power_state = model_utils.LazyMatrixPowerState(matrix)
+      matrix_power_state = google_model_utils.LazyMatrixPowerState(matrix)
     else:
-      matrix_power_state = model_utils.CachedMatrixPowerState.precompute(
+      matrix_power_state = google_model_utils.CachedMatrixPowerState.precompute(
           matrix,
           max_power=powers[-1],
           precision=self.precision,
@@ -1824,7 +1824,7 @@ class CachedDiffusion(DiscreteDiffusionMatrixBase):
 
     if make_one_hot:
       chex.assert_type(qt_plus_1, jnp.int32)
-      qt_plus_1 = losses.onehot(labels=qt_plus_1, num_classes=self.dim)
+      qt_plus_1 = google_losses.onehot(labels=qt_plus_1, num_classes=self.dim)
 
     chex.assert_type(qt_plus_1, jnp.float32)
 
@@ -1867,7 +1867,7 @@ class CachedDiffusion(DiscreteDiffusionMatrixBase):
 
     if make_one_hot:
       chex.assert_type(q0, jnp.int32)
-      q0 = losses.onehot(labels=q0, num_classes=self.dim)
+      q0 = google_losses.onehot(labels=q0, num_classes=self.dim)
 
     chex.assert_type(q0, jnp.float32)
 
@@ -1931,7 +1931,7 @@ class NearestNeighborCachedDiffusion(CachedDiffusion):
     """Returns a matrix describing how similar embeddings are."""
     embeddings = embeddings / jnp.linalg.norm(
         embeddings, axis=-1, keepdims=True)
-    neighbors = model_utils.get_nearest_neighbors(
+    neighbors = google_model_utils.get_nearest_neighbors(
         embeddings,
         k=self.knn,
         include_self=False,
@@ -2033,7 +2033,7 @@ class MaskNearestNeighborCachedDiffusion(CachedDiffusion):
     if embeddings.shape[0] == self.dim:
       embeddings = embeddings[:-1, :-1]
 
-    neighbors = model_utils.get_nearest_neighbors(
+    neighbors = google_model_utils.get_nearest_neighbors(
         embeddings,
         k=self.knn,
         include_self=False,
@@ -2059,7 +2059,7 @@ class MaskNearestNeighborCachedDiffusion(CachedDiffusion):
   def stationary_probs(self, shape):
     """Stationary distribution is one-hot at mask token."""
     sample = jnp.full(shape, self.dim - 1)
-    probs = losses.onehot(sample, self.dim)
+    probs = google_losses.onehot(sample, self.dim)
     return probs
 
   def sample_stationary(self, key, shape):
@@ -2106,7 +2106,7 @@ def create_discrete_diffusion_schedule(
 
     is_constant = beta_min == beta_max
 
-    schedule_fn = utils.create_learning_rate_scheduler(
+    schedule_fn = google_utils.create_learning_rate_scheduler(
         "constant * linear_warmup_from",
         warmup_steps=num_steps,
         min_learning_rate=beta_min,
@@ -2440,7 +2440,7 @@ def q_sample(x_start, t, diffusion, key):
   chex.assert_type(x_start, jnp.int32)
 
   dim = diffusion.dim
-  x_start = losses.onehot(x_start, dim)
+  x_start = google_losses.onehot(x_start, dim)
 
   logits = diffusion.get_qt_given_q0(q0=x_start, t=t, return_logits=True)
   sample = jrandom.categorical(key, logits=logits)
@@ -2458,7 +2458,7 @@ def compute_prior_kl(x_start, diffusion, target_mask=None):
       make_one_hot=True)  # get end step
   p_probs = diffusion.stationary_probs(q_probs.shape[:-1])
 
-  loss = losses.kl_divergence_with_probs(q_probs, p_probs)
+  loss = google_losses.kl_divergence_with_probs(q_probs, p_probs)
 
   if target_mask is not None:
     loss = (loss * target_mask).sum()
@@ -2536,10 +2536,10 @@ def compute_kl_reverse_process(rng_key,
   if predict_x0 and hybrid_lambda > 0.0:
     p_t, p_0 = p_t
     if log_space:
-      cross_entropy = losses.cross_entropy_with_logits(
+      cross_entropy = google_losses.cross_entropy_with_logits(
           logits=p_0, targets=x_start, label_smoothing=label_smoothing)
     else:
-      cross_entropy = losses.cross_entropy_with_probs(
+      cross_entropy = google_losses.cross_entropy_with_probs(
           probs=p_0, targets=x_start, label_smoothing=label_smoothing)
 
     hybrid_loss = hybrid_lambda * cross_entropy
@@ -2547,12 +2547,12 @@ def compute_kl_reverse_process(rng_key,
     hybrid_loss = jnp.asarray([0.0])
 
   if log_space:
-    kl = losses.kl_divergence_with_logits(q_t, p_t)
-    cross_entropy = losses.cross_entropy_with_logits(
+    kl = google_losses.kl_divergence_with_logits(q_t, p_t)
+    cross_entropy = google_losses.cross_entropy_with_logits(
         logits=p_t, targets=x_start, label_smoothing=label_smoothing)
   else:
-    kl = losses.kl_divergence_with_probs(q_t, p_t)
-    cross_entropy = losses.cross_entropy_with_probs(
+    kl = google_losses.kl_divergence_with_probs(q_t, p_t)
+    cross_entropy = google_losses.cross_entropy_with_probs(
         probs=p_t, targets=x_start, label_smoothing=label_smoothing)
 
   if target_mask is not None:
@@ -2796,10 +2796,10 @@ def discrete_diffusion_loss_fn(
         targets=targets,
         method="predict_length")
 
-    length_loss = losses.cross_entropy_with_logits(length_logits,
+    length_loss = google_losses.cross_entropy_with_logits(length_logits,
                                                    target_length - 1)
 
-    length_acc, _ = losses.weighted_accuracy(length_logits, target_length - 1)
+    length_acc, _ = google_losses.weighted_accuracy(length_logits, target_length - 1)
     length_pred = length_logits.argmax(-1) + 1
   else:
     length_loss = 0.0
@@ -2908,7 +2908,7 @@ def discrete_diffusion_predict_completions_fn(
 
   forward_key, reverse_key, model_apply_key = jax.random.split(rng_key, 3)
 
-  model_apply = utils.make_model_apply(model, model_apply_key)
+  model_apply = google_utils.make_model_apply(model, model_apply_key)
 
   if inputs is not None:
     # note that we always mask input padding (because we always want to).
@@ -3071,7 +3071,7 @@ def discrete_diffusion_predict_fn(
     diffusion.set_state(diffusion_state)
 
   extra_key, rng_key = jrandom.split(rng_key)
-  model_apply = utils.make_model_apply(model, extra_key)
+  model_apply = google_utils.make_model_apply(model, extra_key)
   length_key, rng_key = jrandom.split(rng_key)
 
   if inputs is not None:

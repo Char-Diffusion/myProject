@@ -660,14 +660,8 @@ class Decoder(nn.Module, param_remapping.ParameterRemappable):
           position_ids=decoder_positions,
           decode=decode)
     else:
-      print('@@@@@@@@@@@@@')
-      print('123456789')
-      print(decoder_input_tokens)
-      print(type(decoder_input_tokens))
-      print(decode)
       embedded_inputs = self.embedder(
           token_ids=decoder_input_tokens, decode=decode)
-      print('&&&&&&&&&&&&&')
     embedded_inputs = self.input_dropout(
         embedded_inputs, deterministic=deterministic)
 

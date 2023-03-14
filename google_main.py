@@ -168,11 +168,11 @@ def run_experiment(
     if step % validate_every == 0:
       eval_tick = time.time()
 
-      eval_summary = utils.evaluate(
+      eval_summary = google_utils.evaluate(
           trainer, valid_ds, num_eval_steps=num_eval_steps)
       logging.info('eval in step: %d, loss: %.4f', step, eval_summary['loss'])
 
-      prediction_summary = utils.predict(
+      prediction_summary = google_utils.predict(
           trainer,
           valid_ds,
           metric_fns=task.metric_fns,
@@ -204,7 +204,7 @@ def run_experiment(
           model_dir, keep=100_000_000 if checkpoint_keep else 1)
 
     if (step + 1) % train_summary_frequency == 0:
-      summary = utils.combine_metrics(train_metrics)
+      summary = google_utils.combine_metrics(train_metrics)
       logging.info('train in step: %d, loss: %.4f', step, summary['loss'])
 
       if jax.process_index() == 0:
