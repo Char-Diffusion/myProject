@@ -839,7 +839,7 @@ def load_text8(
     if not tf.io.gfile.exists(os.path.join(data_dir, 'text8.zip')):
       url = 'http://mattmahoney.net/dc/text8.zip'
       print('Downloading text8 from URL {}.'.format(url))
-      urllib.request.urlretrieve(url, data_dir)
+      urllib.request.urlretrieve(url, os.path.join(data_dir, 'text8.zip'))
 
     with tf.io.gfile.GFile(os.path.join(data_dir, 'text8.zip'), 'rb') as f:
       rawdata = zipfile.ZipFile(f).read('text8').decode('utf-8')
